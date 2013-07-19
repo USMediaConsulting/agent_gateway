@@ -1,6 +1,12 @@
 import sys
+import os
 import logging
+import pickle
+
 from bottle import Bottle, run, urljoin, HTTPResponse, request
+
+# agent pickle file path
+pickle_path = '.bidders'
 
 # set up logging
 logging.basicConfig(filename='bidder_gateway.log',
@@ -58,6 +64,15 @@ def start_bidder(name):
         '%s_%s' % (bidders[name]['bidder_name'], bidders[name]['pid'])
     logger.info('bidder %s got pid %d' % (name, bidders[name]['pid']))
     
+    # great, let's pickle the data
+    try :    
+        f = open(os.path.join(pickle_path, str(bidders[name]['pid'])), 'w')    
+        pickle.dump(bidders[name], f)
+        f.close()
+    except :
+        result['resultCode'] = 2
+        result['resultDescription'] = 'unable to pickle configuration'
+
     return result
     
 
