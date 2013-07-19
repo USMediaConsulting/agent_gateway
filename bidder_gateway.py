@@ -112,6 +112,18 @@ def stop_bidder(name):
 
 if __name__ == '__main__' :
     logger.warning('starting up server')
+    # check if the pickle_path exists
+    if not os.path.exists(pickle_path):
+          os.mkdir(pickle_path)
+
+    # for each pickled process reload the configuration
+    for config in os.listdir(pickle_path):
+        f = open(os.path.join(pickle_path, config), 'rb')
+        c = pickle.load(f)
+        bidders[c['bidder_name']] = c
+        f.close() 
+        logger.warning('loaded bidder %s=%s' % (c['bidder_name'], c))
+        
     run(app, host='localhost', port=8080, reloader=True)
     sys.exit(0)
 
