@@ -76,7 +76,30 @@ def start_bidder(name):
     return result
     
 
+@app.post('/v1/agents/<name>/stop')
+def stop_bidder(name):
+    """
+        Stops a running bidder
+    """
+    result = {
+            'resultCode'        :   0,
+            'resultDescription' :   'ok'
+    }
+
+    if name not in bidders :
+        result['resultCode'] = 1
+        result['resultDescription'] = 'bidder not running'    
+        return result
+
+    logger.info('stopping bidder %s=%s' % (name, bidders[name]))
+    #TODO kill bidder
+    logger.info('bidder %s with pid %d stopped' % (name, bidders[name]['pid']))
+    del bidders[name]
+
+    return result
+
 if __name__ == '__main__' :
     logger.warning('starting up server')
     run(app, host='localhost', port=8080, reloader=True)
     sys.exit(0)
+
