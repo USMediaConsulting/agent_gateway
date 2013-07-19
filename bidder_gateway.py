@@ -23,8 +23,7 @@ def start_bidder(name):
     """
         Starts up a bidder using as the instance parameters
         the arguments passed in the query string 
-    """ 
-    print 'starting up bidder %s' % name
+    """
     result = {
             'resultCode'        :   0,
             'resultDescription' :   'ok'
@@ -37,16 +36,28 @@ def start_bidder(name):
     else :
         bidders[name] = {}
 
+    # save the executable name
+    bidders[name]['bidder_name'] = request.query['bidder_name']
+    bidders[name]['executable'] = request.query['executable']  
+    # save the params    
+    bidders[name]['params'] = {
+         k:v for k,v in request.query.iteritems() 
+            if k not in ('bidder_name', 'executable') 
+    }
+    
+    logger.info('bringing up bidder %s=%s' % (name, bidders[name]))
+
     #TODO : execute the bidder instance
     #TODO : save the pid for the new bidder
     bidders[name]['pid']  = 8888
-    bidders[name]['bidder_name'] = request.query['bidder_name']  
-    bidders[name]['params'] = {
-         k:v for k,v in request.query.iteritems() if k != 'bidder_name' 
-    }
+   
+    # the key stored by the agent configuration service
+    # is a concatenation of the bidder name passed and the
+    # pid for for process 
     bidders[name]['agent_conf_name'] = \
         '%s_%s' % (bidders[name]['bidder_name'], bidders[name]['pid'])
-
+    logger.info('bidder %s got pid %d' % (name, bidders[name]['pid']))
+    
     return result
     
 
