@@ -1,4 +1,5 @@
 import sys
+import shutil
 import os
 import logging
 import pickle
@@ -94,8 +95,15 @@ def stop_bidder(name):
     logger.info('stopping bidder %s=%s' % (name, bidders[name]))
     #TODO kill bidder
     logger.info('bidder %s with pid %d stopped' % (name, bidders[name]['pid']))
+    pid = bidders[name]['pid']    
     del bidders[name]
-
+    try :
+        os.remove(os.path.join(pickle_path, str(pid)))        
+    except :
+        result = {
+            'resultCode'        :   1,
+            'resultDescription' :   'unable to delete pickled data'
+        }    
     return result
 
 if __name__ == '__main__' :
