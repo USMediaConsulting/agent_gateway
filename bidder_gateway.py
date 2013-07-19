@@ -1,5 +1,12 @@
 import sys
+import logging
 from bottle import Bottle, run, urljoin, HTTPResponse, request
+
+# set up logging
+logging.basicConfig(filename='bidder_gateway.log',
+        format='%(asctime)-15s %(levelname)s %(message)s', 
+        level=logging.DEBUG)
+logger = logging.getLogger('bidder_gateway')
 
 # create the bottle app so we don't use the global one
 app = Bottle()
@@ -44,6 +51,6 @@ def start_bidder(name):
     
 
 if __name__ == '__main__' :
-    print '---- BIDDER GATEWAY ----'
+    logger.warning('starting up server')
     run(app, host='localhost', port=8080, reloader=True)
     sys.exit(0)
