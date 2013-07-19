@@ -42,8 +42,8 @@ def start_bidder(name):
     else :
         bidders[name] = {}
 
-    # save the executable name
-    bidders[name]['bidder_name'] = request.query['bidder_name']
+    # save the executable name and external name
+    bidders[name]['bidder_name'] = name
     bidders[name]['executable'] = request.query['executable']  
     # save the params    
     bidders[name]['params'] = {
