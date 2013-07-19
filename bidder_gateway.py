@@ -20,6 +20,8 @@ app = Bottle()
 # initialize bidder map
 bidders = {}
 
+_process_id = 8000
+
 @app.get('/test_redirect')
 def do_redirection():
     location = urljoin('http://127.0.0.1:9985', '/v1/accounts/nemi')
@@ -31,6 +33,7 @@ def start_bidder(name):
         Starts up a bidder using as the instance parameters
         the arguments passed in the query string 
     """
+    global _process_id
     result = {
             'resultCode'        :   0,
             'resultDescription' :   'ok'
@@ -56,7 +59,8 @@ def start_bidder(name):
 
     #TODO : execute the bidder instance
     #TODO : save the pid for the new bidder
-    bidders[name]['pid']  = 8888
+    bidders[name]['pid']  = _process_id
+    _process_id += 1
    
     # the key stored by the agent configuration service
     # is a concatenation of the bidder name passed and the
