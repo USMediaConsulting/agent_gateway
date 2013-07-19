@@ -71,7 +71,7 @@ def start_bidder(name):
     
     # great, let's pickle the data
     try :    
-        f = open(os.path.join(pickle_path, str(bidders[name]['pid'])), 'w')    
+        f = open(os.path.join(pickle_path, str(bidders[name]['pid'])), 'wb')    
         pickle.dump(bidders[name], f)
         f.close()
     except :
