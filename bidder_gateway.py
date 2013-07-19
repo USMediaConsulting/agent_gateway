@@ -36,7 +36,7 @@ def start_bidder(name):
     }
 
     if name in bidders :
-        result['result_code'] = 1
+        result['resultCode'] = 1
         result['resultDescription'] = 'bidder already started'    
         return result
     else :
