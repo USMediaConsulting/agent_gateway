@@ -24,8 +24,6 @@ app = Bottle()
 # initialize bidder map
 bidders = {}
 
-_process_id = 8000
-
 @app.get('/test_redirect')
 def do_redirection():
     location = urljoin('http://127.0.0.1:9985', '/v1/accounts/nemi')
@@ -69,15 +67,16 @@ def start_bidder(name):
     
     exe = [ './%s' % bidders[name]['executable']]
     exe.extend(arguments)
-    logger.info('arguments %s' % exe)
     # bring the process up
     proc = subprocess.Popen(
         exe, 
         cwd=exec_base_path,        
         shell=False, 
-        close_fds=True)
+        close_fds=True,
+        stdout=subprocess.PIPE)
     # wait for the forker process to finish
     proc.wait()
+    pid = int(proc.stdout.readline())
     rc = proc.returncode
     if rc :
         del bidders[name]
@@ -85,9 +84,8 @@ def start_bidder(name):
         result['resultDescription'] = 'return code is %d' % rc    
         return result
 
-    #TODO : save the pid for the new bidder
-    bidders[name]['pid']  = _process_id
-    _process_id += 1
+    # save the pid for the new bidder
+    bidders[name]['pid']  = pid
    
     # the key stored by the agent configuration service
     # is a concatenation of the bidder name passed and the
