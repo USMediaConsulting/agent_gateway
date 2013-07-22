@@ -3,11 +3,15 @@ import shutil
 import os
 import logging
 import pickle
+import subprocess
 
 from bottle import Bottle, run, urljoin, HTTPResponse, request
 
 # agent pickle file path
 pickle_path = '.bidders'
+
+# agent base path
+exec_base_path = '/home/nemi/workspace/test/daemon'
 
 # set up logging
 logging.basicConfig(filename='bidder_gateway.log',
@@ -57,7 +61,30 @@ def start_bidder(name):
     
     logger.info('bringing up bidder %s=%s' % (name, bidders[name]))
 
-    #TODO : execute the bidder instance
+    # set the args a list (popen expects them that way)
+    arguments = []
+    for k,v in bidders[name]['params'].iteritems() :
+        arguments.append('-%s' % k)
+        arguments.append(v)
+    
+    exe = [ './%s' % bidders[name]['executable']]
+    exe.extend(arguments)
+    logger.info('arguments %s' % exe)
+    # bring the process up
+    proc = subprocess.Popen(
+        exe, 
+        cwd=exec_base_path,        
+        shell=False, 
+        close_fds=True)
+    # wait for the forker process to finish
+    proc.wait()
+    rc = proc.returncode
+    if rc :
+        del bidders[name]
+        result['resultCode'] = 3
+        result['resultDescription'] = 'return code is %d' % rc    
+        return result
+
     #TODO : save the pid for the new bidder
     bidders[name]['pid']  = _process_id
     _process_id += 1
