@@ -122,15 +122,28 @@ def stop_bidder(name):
         return result
 
     logger.info('stopping bidder %s=%s' % (name, bidders[name]))
-    #TODO kill bidder
-    logger.info('bidder %s with pid %d stopped' % (name, bidders[name]['pid']))
-    pid = bidders[name]['pid']    
+
+    pid = bidders[name]['pid']
+    try :
+        signal = 9
+        if 'signal' in request.query :
+            signal = int(request.query['signal'])
+        os.kill(pid, signal)
+        logger.info('signal %d sent to process with pid %d' % (signal, pid))
+    except :
+        result['resultCode'] = 2
+        result['resultDescription'] = 'unable to kill process %s' % pid    
+        return result
+
+    logger.info('bidder %s with pid %d stopped' % (name, pid))
+    
+    # clean up     
     del bidders[name]
     try :
-        os.remove(os.path.join(pickle_path, str(pid)))        
+        os.remove(os.path.join(pickle_path, str(pid)))
     except :
         result = {
-            'resultCode'        :   1,
+            'resultCode'        :   4,
             'resultDescription' :   'unable to delete pickled data'
         }    
     return result
