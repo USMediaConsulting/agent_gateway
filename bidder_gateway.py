@@ -36,6 +36,20 @@ def do_redirection():
 def get_agents():
     return '%s' % bidders.keys()
 
+@app.get('/v1/agents/<name>/config')
+def get_config(name):
+    try :
+        # try to map the name to the internal config name     
+        location = urljoin(
+            AGENT_CONFIG_SERVER, 
+           '/v1/agents/%s/config' % bidders[name]['agent_conf_name'])
+        raise HTTPResponse("", status=302, Location=location)
+    except :
+        return  {
+                'resultCode'        :    1,
+                'resultDescription' :   'unable to map %s' % name
+                }
+        
 @app.post('/v1/agents/<name>/start')
 def start_bidder(name):
     """
