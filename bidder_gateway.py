@@ -196,6 +196,20 @@ def stop_bidder(name):
         }    
     return result
 
+@app.get('/v1/agents/<name>/status')
+def get_status(name):
+    """
+        retrieves the status of a given agent
+    """
+    result = {
+            'resultCode'        :   0,
+            'resultDescription' :   'down'
+    }
+    if name in bidders:
+        result['resultCode'] = 1
+        result['resultDescription'] = 'up'    
+    return result
+
 if __name__ == '__main__' :
     logger.warning('starting up server')
     # check if the pickle_path exists
