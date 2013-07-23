@@ -73,6 +73,11 @@ def heartbeat(name):
                 }
     raise HTTPResponse("", status=302, Location=location)
 
+@app.get('/v1/agents/all')
+def get_all():     
+    location = urljoin(AGENT_CONFIG_SERVER, '/v1/agents/all')
+    raise HTTPResponse("", status=302, Location=location)
+
 @app.post('/v1/agents/<name>/start')
 def start_bidder(name):
     """
