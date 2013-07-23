@@ -139,7 +139,7 @@ def start_bidder(name):
     # is a concatenation of the bidder name passed and the
     # pid for for process 
     bidders[name]['agent_conf_name'] = \
-        '%s_%s' % (bidders[name]['executable'], bidders[name]['pid'])
+        '%s_%s' % (name, bidders[name]['pid'])
     logger.info('bidder %s got pid %d' % (name, bidders[name]['pid']))
     
     # great, let's pickle the data
