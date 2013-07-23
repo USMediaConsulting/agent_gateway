@@ -59,6 +59,20 @@ def set_config(name):
                 }
     raise HTTPResponse("", status=302, Location=location)
 
+@app.post('/v1/agents/<name>/heartbeat')
+def heartbeat(name):
+    try :
+        # try to map the name to the internal config name     
+        location = urljoin(
+            AGENT_CONFIG_SERVER, 
+           '/v1/agents/%s/heartbeat' % bidders[name]['agent_conf_name'])
+    except :
+        return  {
+                'resultCode'        :    1,
+                'resultDescription' :   'unable to map %s' % name
+                }
+    raise HTTPResponse("", status=302, Location=location)
+
 @app.post('/v1/agents/<name>/start')
 def start_bidder(name):
     """
