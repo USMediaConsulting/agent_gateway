@@ -46,19 +46,34 @@ def map_and_redirect(uri, name):
 
 @app.get('/v1/agents')
 def get_agents():
+    """
+        returns the list of bidders
+    """
     return '%s' % bidders.keys()
 
 @app.post('/v1/agents/<name>/config')
 @app.get('/v1/agents/<name>/config')
 def get_config(name):
+    """
+        redirects the call to the agent configuration service
+        on /v1/agents/<name>/config for the given name
+    """
     return map_and_redirect('/v1/agents/%s/config', name)
 
 @app.post('/v1/agents/<name>/heartbeat')
 def heartbeat(name):
+    """
+        redirects the call to the agent configuration service
+        on /v1/agents/<name>/heartbeat for the given name
+    """
     return map_and_redirect('/v1/agents/%s/heartbeat', name)
     
 @app.get('/v1/agents/all')
-def get_all():     
+def get_all():
+    """
+        redirects the call to the agent configuration service
+        on /v1/agents/all
+    """     
     location = urljoin(AGENT_CONFIG_SERVER, '/v1/agents/all')
     raise HTTPResponse("", status=302, Location=location)
 
