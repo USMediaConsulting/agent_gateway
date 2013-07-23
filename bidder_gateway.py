@@ -7,7 +7,7 @@ import subprocess
 
 from bottle import Bottle, run, urljoin, HTTPResponse, request
 
-AGENT_CONFIG_SERVER = 'http://127.0.0.1:9985'
+AGENT_CONFIG_SERVER = 'http://127.0.0.1:9986'
 
 # agent pickle file path
 pickle_path = '.bidders'
