@@ -26,11 +26,6 @@ app = Bottle()
 # initialize bidder map
 bidders = {}
 
-@app.get('/test_redirect')
-def do_redirection():
-    location = urljoin(AGENT_CONFIG_SERVER, '/v1/accounts/nemi')
-    raise HTTPResponse("", status=302, Location=location)
-
 
 @app.get('/v1/agents')
 def get_agents():
