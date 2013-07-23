@@ -27,52 +27,36 @@ app = Bottle()
 bidders = {}
 
 
+def map_and_redirect(uri, name):
+    """
+        maps the name, sets the uri and raises a redirection
+        otherwise returns the json result code
+    """
+    try :
+        # try to map the name to the internal config name     
+        location = urljoin(
+            AGENT_CONFIG_SERVER, 
+            uri % bidders[name]['agent_conf_name'])
+    except :
+        return  {
+                'resultCode'        :    1,
+                'resultDescription' :   'unable to map %s' % name
+                }
+    raise HTTPResponse("", status=302, Location=location)
+
 @app.get('/v1/agents')
 def get_agents():
     return '%s' % bidders.keys()
 
+@app.post('/v1/agents/<name>/config')
 @app.get('/v1/agents/<name>/config')
 def get_config(name):
-    try :
-        # try to map the name to the internal config name     
-        location = urljoin(
-            AGENT_CONFIG_SERVER, 
-           '/v1/agents/%s/config' % bidders[name]['agent_conf_name'])
-    except :
-        return  {
-                'resultCode'        :    1,
-                'resultDescription' :   'unable to map %s' % name
-                }
-    raise HTTPResponse("", status=302, Location=location)
-
-@app.post('/v1/agents/<name>/config')
-def set_config(name):
-    try :
-        # try to map the name to the internal config name     
-        location = urljoin(
-            AGENT_CONFIG_SERVER, 
-           '/v1/agents/%s/config' % bidders[name]['agent_conf_name'])
-    except :
-        return  {
-                'resultCode'        :    1,
-                'resultDescription' :   'unable to map %s' % name
-                }
-    raise HTTPResponse("", status=302, Location=location)
+    return map_and_redirect('/v1/agents/%s/config', name)
 
 @app.post('/v1/agents/<name>/heartbeat')
 def heartbeat(name):
-    try :
-        # try to map the name to the internal config name     
-        location = urljoin(
-            AGENT_CONFIG_SERVER, 
-           '/v1/agents/%s/heartbeat' % bidders[name]['agent_conf_name'])
-    except :
-        return  {
-                'resultCode'        :    1,
-                'resultDescription' :   'unable to map %s' % name
-                }
-    raise HTTPResponse("", status=302, Location=location)
-
+    return map_and_redirect('/v1/agents/%s/heartbeat', name)
+    
 @app.get('/v1/agents/all')
 def get_all():     
     location = urljoin(AGENT_CONFIG_SERVER, '/v1/agents/all')
