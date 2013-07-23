@@ -7,6 +7,8 @@ import subprocess
 
 from bottle import Bottle, run, urljoin, HTTPResponse, request
 
+AGENT_CONFIG_SERVER = 'http://127.0.0.1:9985'
+
 # agent pickle file path
 pickle_path = '.bidders'
 
@@ -26,7 +28,7 @@ bidders = {}
 
 @app.get('/test_redirect')
 def do_redirection():
-    location = urljoin('http://127.0.0.1:9985', '/v1/accounts/nemi')
+    location = urljoin(AGENT_CONFIG_SERVER, '/v1/accounts/nemi')
     raise HTTPResponse("", status=302, Location=location)
 
 
