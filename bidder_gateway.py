@@ -29,6 +29,11 @@ def do_redirection():
     location = urljoin('http://127.0.0.1:9985', '/v1/accounts/nemi')
     raise HTTPResponse("", status=302, Location=location)
 
+
+@app.get('/v1/agents')
+def get_agents():
+    return '%s' % bidders.keys()
+
 @app.post('/v1/agents/<name>/start')
 def start_bidder(name):
     """
