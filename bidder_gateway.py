@@ -99,27 +99,27 @@ def start_bidder(name):
         result['resultDescription'] = 'bidder already started'    
         return result
     else :
-        bidders[name] = {}
+        bidder = {}
 
     # save the executable name and external name
-    bidders[name]['bidder_name'] = name
-    bidders[name]['executable'] = request.query['executable']  
+    bidder['bidder_name'] = name
+    bidder['executable'] = request.query['executable']  
     # save the params    
-    bidders[name]['params'] = {
+    bidder['params'] = {
          k:v for k,v in request.query.iteritems() 
             if k not in ('bidder_name', 'executable') 
     }
     
-    logger.info('bringing up bidder %s=%s' % (name, bidders[name]))
+    logger.info('bringing up bidder %s=%s' % (name, bidder))
 
     # set the args a list (popen expects them that way)
     arguments = []
-    for k,v in bidders[name]['params'].iteritems() :
+    for k,v in bidder['params'].iteritems() :
         arguments.append('-%s' % k)
         arguments.append(v)
     
     exe = ['nohup']
-    exe.append('./%s' % bidders[name]['executable'])
+    exe.append('./%s' % bidder['executable'])
     exe.extend(arguments)
     exe.append('-B')
     exe.append(os.path.join(config_base_path, 'sample.bootstrap.json'))
@@ -150,15 +150,17 @@ def start_bidder(name):
                 break
     f.close()
     # save the pid for the new bidder
-    bidders[name]['pid']  = pid
+    bidder['pid']  = pid
     logger.info('pid is : %d' % int(pid)) 
     # the key stored by the agent configuration service
     # is a concatenation of the bidder name passed and the
     # pid for for process 
-    bidders[name]['agent_conf_name'] = \
-        '%s_%s' % (name, bidders[name]['pid'])
-    logger.info('bidder %s got pid %d' % (name, bidders[name]['pid']))
+    bidder['agent_conf_name'] = \
+        '%s_%s' % (name, bidder['pid'])
+    logger.info('bidder %s got pid %d' % (name, bidder['pid']))
     
+    # save it    
+    bidders[name] = bidder
     # great, let's pickle the data
     try :    
         f = open(os.path.join(pickle_path, str(bidders[name]['pid'])), 'wb')    
