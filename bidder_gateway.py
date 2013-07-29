@@ -132,15 +132,20 @@ def start_bidder(name):
     log_path = os.path.join(log_base_path, 'bidder_%s.log' % name)
     log_file = open(log_path, 'w')
     # bring the process up    
-    proc = subprocess.Popen(
-        ' '.join(exe), 
-        cwd=exec_base_path,        
-        shell=True, 
-        close_fds=True,
-        stdout=log_file)
+    try :     
+        proc = subprocess.Popen(
+            ' '.join(exe), 
+            cwd=exec_base_path,        
+            shell=True, 
+            close_fds=True,
+            stdout=log_file)
+    except :
+        result['resultCode'] = 3
+        result['resultDescription'] = 'error executing bidder'
 
     # read the pid, the one that proc returns belongs to the shell
     pid = None
+    # give it some time to make sure the pid is there
     time.sleep(1)
     with open(log_path, 'r') as f:   
         for line in f:
