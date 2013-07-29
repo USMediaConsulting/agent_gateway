@@ -123,6 +123,8 @@ def start_bidder(name):
     exe.extend(arguments)
     exe.append('-B')
     exe.append(os.path.join(config_base_path, 'sample.bootstrap.json'))
+    exe.append('-N')
+    exe.append(name)
     exe.append('&')
     logger.info('executing : %s' % ' '.join(exe))
     
