@@ -4,6 +4,8 @@ import os
 import logging
 import pickle
 import subprocess
+import re
+import time
 
 from bottle import Bottle, run, urljoin, HTTPResponse, request
 
@@ -13,7 +15,10 @@ AGENT_CONFIG_SERVER = 'http://127.0.0.1:9986'
 pickle_path = '.bidders'
 
 # agent base path
-exec_base_path = '/home/nemi/workspace/test/daemon'
+base_path        = '/home/nemi/workspace/rtb/rtbkit'
+exec_base_path   = os.path.join(base_path, 'build/x86_64/bin')
+config_base_path = base_path
+log_base_path    = os.path.join(base_path, 'logs')
 
 # set up logging
 logging.basicConfig(filename='bidder_gateway.log',
@@ -113,28 +118,38 @@ def start_bidder(name):
         arguments.append('-%s' % k)
         arguments.append(v)
     
-    exe = [ './%s' % bidders[name]['executable']]
+    exe = ['nohup']
+    exe.append('./%s' % bidders[name]['executable'])
     exe.extend(arguments)
-    # bring the process up
+    exe.append('-B')
+    exe.append(os.path.join(config_base_path, 'sample.bootstrap.json'))
+    exe.append('&')
+    logger.info('executing : %s' % ' '.join(exe))
+    
+    # check the log file    
+    log_path = os.path.join(log_base_path, 'bidder_%s.log' % name)
+    log_file = open(log_path, 'w')
+    # bring the process up    
     proc = subprocess.Popen(
-        exe, 
+        ' '.join(exe), 
         cwd=exec_base_path,        
-        shell=False, 
+        shell=True, 
         close_fds=True,
-        stdout=subprocess.PIPE)
-    # wait for the forker process to finish
-    proc.wait()
-    pid = int(proc.stdout.readline())
-    rc = proc.returncode
-    if rc :
-        del bidders[name]
-        result['resultCode'] = 3
-        result['resultDescription'] = 'return code is %d' % rc    
-        return result
+        stdout=log_file)
 
+    # read the pid, the one that proc returns belongs to the shell
+    pid = None
+    time.sleep(1)
+    with open(log_path, 'r') as f:   
+        for line in f:
+            m = re.match('pid:(?P<pid>\d+)', line)
+            if m is not None:
+                pid = int(m.group('pid'))
+                break
+    f.close()
     # save the pid for the new bidder
     bidders[name]['pid']  = pid
-   
+    logger.info('pid is : %d' % int(pid)) 
     # the key stored by the agent configuration service
     # is a concatenation of the bidder name passed and the
     # pid for for process 
