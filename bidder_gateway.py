@@ -128,8 +128,19 @@ def start_bidder(name):
     exe.append('&')
     logger.info('executing : %s' % ' '.join(exe))
     
-    # check the log file    
-    log_path = os.path.join(log_base_path, 'bidder_%s.log' % name)
+    # check the log file
+    log_file_name = 'bidder_%s_%s.log' % (name, time.strftime('%d.%m.%Y_%H.%M.%S'))
+    log_path = os.path.join(log_base_path, log_file_name)
+    #try to unlink and then relink
+    try :
+        os.unlink(
+            os.path.join(log_base_path, 'bidder_%s.log' % name))
+    except :
+        pass
+    os.symlink(log_file_name, 
+            os.path.join(log_base_path, 'bidder_%s.log' % name))
+    
+
     log_file = open(log_path, 'w')
     # bring the process up    
     try :     
