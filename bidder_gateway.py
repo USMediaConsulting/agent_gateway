@@ -6,6 +6,7 @@ import pickle
 import subprocess
 import re
 import time
+import json
 
 from bottle import Bottle, run, urljoin, HTTPResponse, request
 
@@ -19,6 +20,8 @@ base_path        = '/home/nemi/workspace/rtb/rtbkit'
 exec_base_path   = os.path.join(base_path, 'build/x86_64/bin')
 config_base_path = base_path
 log_base_path    = os.path.join(base_path, 'logs')
+
+bidders_config_base_path = os.path.join(os.getcwd(), '.config')
 
 # set up logging
 logging.basicConfig(filename='bidder_gateway.log',
@@ -110,14 +113,25 @@ def start_bidder(name):
             if k not in ('bidder_name', 'executable') 
     }
     
-    logger.info('bringing up bidder %s=%s' % (name, bidder))
+    # create a file with the json configuration
+    conf_file_name = os.path.join(
+        bidders_config_base_path, '%s.conf.json' % name)    
+    try :
+        conf_file = open(conf_file_name, 'w')
+        conf_file.write(json.dumps(request.json))    
+        conf_file.close()
+    except :
+        result['resultCode'] = 4
+        result['resultDescription'] = 'unable to create config file'    
+        return result
 
+    logger.info('bringing up bidder %s=%s' % (name, bidder))
     # set the args a list (popen expects them that way)
     arguments = []
     for k,v in bidder['params'].iteritems() :
         arguments.append('-%s' % k)
-        arguments.append(v)
-    
+        arguments.append(v)    
+ 
     exe = ['nohup']
     exe.append('./%s' % bidder['executable'])
     exe.extend(arguments)
@@ -125,6 +139,8 @@ def start_bidder(name):
     exe.append(os.path.join(config_base_path, 'sample.bootstrap.json'))
     exe.append('-N')
     exe.append(name)
+    exe.append('-f')
+    exe.append(conf_file_name)
     exe.append('&')
     logger.info('executing : %s' % ' '.join(exe))
     
@@ -158,7 +174,7 @@ def start_bidder(name):
     pid = None
     # give it some time to make sure the pid is there
     time.sleep(1)
-    with open(log_path, 'r') as f:   
+    with open(log_path, 'r') as f:
         for line in f:
             m = re.match('pid:(?P<pid>\d+)', line)
             if m is not None:
