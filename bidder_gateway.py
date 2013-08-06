@@ -264,11 +264,16 @@ def get_status(name):
         result['resultDescription'] = 'up'    
     return result
 
+
 if __name__ == '__main__' :
+    
     logger.warning('starting up server')
     # check if the pickle_path exists
     if not os.path.exists(pickle_path):
           os.mkdir(pickle_path)
+    # check if the json_path exists
+    if not os.path.exists(json_path):
+          os.mkdir(json_path)
 
     # for each pickled process reload the configuration
     for config in os.listdir(pickle_path):
