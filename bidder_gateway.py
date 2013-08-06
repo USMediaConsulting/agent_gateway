@@ -32,8 +32,9 @@ logging.basicConfig(filename='bidder_gateway.log',
         level=logging.DEBUG)
 logger = logging.getLogger('bidder_gateway')
 
-# create the bottle app so we don't use the global one
+# app bottle
 app = Bottle()
+
 # initialize bidder map
 bidders = {}
 
@@ -265,24 +266,37 @@ def get_status(name):
     return result
 
 
-if __name__ == '__main__' :
-    
-    logger.warning('starting up server')
-    # check if the pickle_path exists
-    if not os.path.exists(pickle_path):
-          os.mkdir(pickle_path)
-    # check if the json_path exists
-    if not os.path.exists(json_path):
-          os.mkdir(json_path)
+class application:
+    '''
+        Main app exposed
+    '''
+    def __init__(self, config_file):
+        '''
+            init everything
+        '''
+        self.app = app
 
-    # for each pickled process reload the configuration
-    for config in os.listdir(pickle_path):
-        f = open(os.path.join(pickle_path, config), 'rb')
-        c = pickle.load(f)
-        bidders[c['bidder_name']] = c
-        f.close() 
-        logger.warning('loaded bidder %s=%s' % (c['bidder_name'], c))
-        
-    run(app, host=GATEWAY_IP, port=GATEWAY_PORT, reloader=False)
-    sys.exit(0)
+        # check if the pickle_path exists
+        if not os.path.exists(pickle_path):
+              os.mkdir(pickle_path)
+        # check if the json_path exists
+        if not os.path.exists(json_path):
+              os.mkdir(json_path)
+
+        # for each pickled process reload the configuration
+        for config in os.listdir(pickle_path):
+            f = open(os.path.join(pickle_path, config), 'rb')
+            c = pickle.load(f)
+            bidders[c['bidder_name']] = c
+            f.close() 
+            logger.warning('loaded bidder %s=%s' % (c['bidder_name'], c))
+
+    def run(self):
+        '''
+            run the development bottle server
+        '''
+        logger.warning('starting up server')    
+        run(self.app, host=GATEWAY_IP, port=GATEWAY_PORT, reloader=False)
+
+    
 
