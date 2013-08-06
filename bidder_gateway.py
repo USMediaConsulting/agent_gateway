@@ -11,17 +11,20 @@ import json
 from bottle import Bottle, run, urljoin, HTTPResponse, request
 
 AGENT_CONFIG_SERVER = 'http://127.0.0.1:9986'
+GATEWAY_IP          = '192.168.10.152'
+GATEWAY_PORT        = 8080
+BASE_PATH           = '/home/nemi/workspace/rtb/rtbkit'
 
 # agent pickle file path
 pickle_path = '.bidders'
+json_path   = '.config'
 
-# agent base path
-base_path        = '/home/nemi/workspace/rtb/rtbkit'
-exec_base_path   = os.path.join(base_path, 'build/x86_64/bin')
-config_base_path = base_path
-log_base_path    = os.path.join(base_path, 'logs')
+# agent base path 
+exec_base_path   = os.path.join(BASE_PATH, 'build/x86_64/bin')
+config_base_path = BASE_PATH
+log_base_path    = os.path.join(BASE_PATH, 'logs')
 
-bidders_config_base_path = os.path.join(os.getcwd(), '.config')
+bidders_config_base_path = os.path.join(os.getcwd(), json_path)
 
 # set up logging
 logging.basicConfig(filename='bidder_gateway.log',
@@ -275,6 +278,6 @@ if __name__ == '__main__' :
         f.close() 
         logger.warning('loaded bidder %s=%s' % (c['bidder_name'], c))
         
-    run(app, host='localhost', port=8080, reloader=True)
+    run(app, host=GATEWAY_IP, port=GATEWAY_PORT, reloader=False)
     sys.exit(0)
 
