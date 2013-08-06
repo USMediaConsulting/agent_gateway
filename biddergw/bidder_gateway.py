@@ -7,24 +7,24 @@ import subprocess
 import re
 import time
 import json
+import ConfigParser
 
 from bottle import Bottle, run, urljoin, HTTPResponse, request
 
-AGENT_CONFIG_SERVER = 'http://127.0.0.1:9986'
-GATEWAY_IP          = '192.168.10.152'
-GATEWAY_PORT        = 8080
-BASE_PATH           = '/home/nemi/workspace/rtb/rtbkit'
+AGENT_CONFIG_SERVER = None
+GATEWAY_IP          = None
+GATEWAY_PORT        = None
+BASE_PATH           = None
 
 # agent pickle file path
 pickle_path = '.bidders'
 json_path   = '.config'
 
 # agent base path 
-exec_base_path   = os.path.join(BASE_PATH, 'build/x86_64/bin')
-config_base_path = BASE_PATH
-log_base_path    = os.path.join(BASE_PATH, 'logs')
-
-bidders_config_base_path = os.path.join(os.getcwd(), json_path)
+exec_base_path   = None
+config_base_path = None
+log_base_path    = None
+bidders_config_base_path = None
 
 # set up logging
 logging.basicConfig(filename='bidder_gateway.log',
@@ -265,11 +265,42 @@ class application:
     '''
         Main app exposed
     '''
+
     def __init__(self, config_file):
         '''
             init everything
         '''
         self.app = app
+
+        # load configuration 
+        self.config = ConfigParser.ConfigParser()
+        self.config.read(config_file)
+
+        global AGENT_CONFIG_SERVER
+        global GATEWAY_IP
+        global GATEWAY_PORT
+        global BASE_PATH
+
+        AGENT_CONFIG_SERVER = self.config.get('global', 'AGENT_CONFIG_SERVER')
+        GATEWAY_IP = self.config.get('global', 'GATEWAY_IP')
+        GATEWAY_PORT = int(self.config.get('global', 'GATEWAY_PORT'))
+        BASE_PATH = self.config.get('global', 'BASE_PATH')
+    
+        logger.warning('AGENT_CONFIG_SERVER: %s' % AGENT_CONFIG_SERVER)
+        logger.warning('GATEWAY_IP: %s' % GATEWAY_IP)
+        logger.warning('GATEWAY_PORT: %d' % GATEWAY_PORT)
+        logger.warning('BASE_PATH: %s' % BASE_PATH)
+
+        global exec_base_path
+        global config_base_path
+        global log_base_path
+        global bidders_config_base_path
+
+        exec_base_path   = os.path.join(BASE_PATH, 'build/x86_64/bin')
+        config_base_path = BASE_PATH
+        log_base_path    = os.path.join(BASE_PATH, 'logs')
+        bidders_config_base_path = os.path.join(os.getcwd(), json_path)
+
 
         # check if the pickle_path exists
         if not os.path.exists(pickle_path):
