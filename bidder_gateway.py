@@ -139,10 +139,6 @@ def start_bidder(name):
     exe = ['nohup']
     exe.append('./%s' % bidder['executable'])
     exe.extend(arguments)
-    exe.append('-B')
-    exe.append(os.path.join(config_base_path, 'sample.bootstrap.json'))
-    exe.append('-N')
-    exe.append(name)
     exe.append('-f')
     exe.append(conf_file_name)
     exe.append('&')
@@ -159,7 +155,6 @@ def start_bidder(name):
         pass
     os.symlink(log_file_name, 
             os.path.join(log_base_path, 'bidder_%s.log' % name))
-    
 
     log_file = open(log_path, 'w')
     # bring the process up    
