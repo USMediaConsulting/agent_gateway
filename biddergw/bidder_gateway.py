@@ -180,6 +180,21 @@ def start_bidder(name):
                 pid = int(m.group('pid'))
                 break
     f.close()
+    if pid is None :
+        # something is not ok
+        logger.error('unable to find pid, are you printing it?')
+        result['resultCode'] = 4
+        result['resultDescription'] = 'unable to find pid, are you printing it?'
+        return result     
+    # check if the pid still exists, sometimes a bidder starts and aborts
+    # right away.
+    if not os.path.exists('/proc/%d' % pid):
+        # something is not ok
+        logger.error('did the process aborted?')
+        result['resultCode'] = 5
+        result['resultDescription'] = 'process id %d lost' % pid
+        return result
+     
     # save the pid for the new bidder
     bidder['pid']  = pid
     logger.info('pid is : %d' % int(pid)) 
@@ -255,9 +270,26 @@ def get_status(name):
             'resultCode'        :   0,
             'resultDescription' :   'down'
     }
-    if name in bidders:
-        result['resultCode'] = 1
-        result['resultDescription'] = 'up'    
+
+    if not name in bidders:
+        return result
+
+    pid = bidders[name]['pid']
+    if not os.path.exists('/proc/%d' % pid):
+        # something is not ok, the bidder aborted
+        logger.error('did the process %d aborted?' % pid)
+        # clean up
+        try :
+            os.remove(os.path.join(pickle_path, str(pid)))
+        except :
+            pass
+        del bidders[name]
+        result['resultCode'] = 2
+        result['resultDescription'] = 'process id %d lost' % pid
+        return result
+
+    result['resultCode'] = 1
+    result['resultDescription'] = 'up'    
     return result
 
 
