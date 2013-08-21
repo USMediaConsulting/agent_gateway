@@ -5,4 +5,4 @@ stop bidders through a web app. So, what's easier than a RESTful API ?
 
 Check the wiki for mor info at :
 
-https://github.com/USMediaConsulting/bidder_gateway/wiki/Bidder-Gateway-Documentation
+https://github.com/USMediaConsulting/agent_gateway/wiki/Agent-Gateway-Documentation
