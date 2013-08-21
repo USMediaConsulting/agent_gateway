@@ -27,10 +27,10 @@ log_base_path    = None
 bidders_config_base_path = None
 
 # set up logging
-logging.basicConfig(filename='bidder_gateway.log',
+logging.basicConfig(filename='agent_gateway.log',
         format='%(asctime)-15s %(levelname)s %(message)s', 
         level=logging.DEBUG)
-logger = logging.getLogger('bidder_gateway')
+logger = logging.getLogger('agent_gateway')
 
 # app bottle
 app = Bottle()
@@ -145,16 +145,16 @@ def start_bidder(name):
     logger.info('executing : %s' % ' '.join(exe))
     
     # check the log file
-    log_file_name = 'bidder_%s_%s.log' % (name, time.strftime('%d.%m.%Y_%H.%M.%S'))
+    log_file_name = 'agent_%s_%s.log' % (name, time.strftime('%d.%m.%Y_%H.%M.%S'))
     log_path = os.path.join(log_base_path, log_file_name)
     #try to unlink and then relink
     try :
         os.unlink(
-            os.path.join(log_base_path, 'bidder_%s.log' % name))
+            os.path.join(log_base_path, 'agent_%s.log' % name))
     except :
         pass
     os.symlink(log_file_name, 
-            os.path.join(log_base_path, 'bidder_%s.log' % name))
+            os.path.join(log_base_path, 'agent_%s.log' % name))
 
     log_file = open(log_path, 'w')
     # bring the process up    
@@ -167,7 +167,7 @@ def start_bidder(name):
             stdout=log_file)
     except :
         result['resultCode'] = 3
-        result['resultDescription'] = 'error executing bidder'
+        result['resultDescription'] = 'error executing agent'
 
     # read the pid, the one that proc returns belongs to the shell
     pid = None
@@ -222,7 +222,7 @@ def start_bidder(name):
 @app.post('/v1/agents/<name>/stop')
 def stop_bidder(name):
     """
-        Stops a running bidder
+        Stops a running agent
     """
     result = {
             'resultCode'        :   0,
@@ -248,7 +248,7 @@ def stop_bidder(name):
         result['resultDescription'] = 'unable to kill process %s' % pid    
         return result
 
-    logger.info('bidder %s with pid %d stopped' % (name, pid))
+    logger.info('agent %s with pid %d stopped' % (name, pid))
     
     # clean up     
     del bidders[name]
@@ -347,7 +347,7 @@ class application:
             c = pickle.load(f)
             bidders[c['bidder_name']] = c
             f.close() 
-            logger.warning('loaded bidder %s=%s' % (c['bidder_name'], c))
+            logger.warning('loaded agent %s=%s' % (c['bidder_name'], c))
 
     def run(self):
         '''
