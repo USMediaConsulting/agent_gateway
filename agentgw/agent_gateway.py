@@ -114,10 +114,11 @@ def start_bidder(name):
     # save the executable name and external name
     bidder['bidder_name'] = name
     bidder['executable'] = request.query['executable']  
-    # save the params    
+    # save the params
+    escape = lambda x : '"%s"' % x
     bidder['params'] = {
-         k:v for k,v in request.query.iteritems() 
-            if k not in ('bidder_name', 'executable') 
+         k:escape(v) for k,v in request.query.iteritems() 
+            if k not in ('executable', ) 
     }
     
     # create a file with the json configuration
