@@ -54,6 +54,8 @@ def map_and_redirect(uri, name):
                 'resultCode'        :    1,
                 'resultDescription' :   'unable to map %s' % name
                 }
+        raise HTTPResponse(body=json.dumps(result), status=404, 
+                Content_Type='application/json')
     raise HTTPResponse("", status=302, Location=location)
 
 @app.get('/v1/agents')
@@ -299,7 +301,8 @@ def get_status(name):
         del bidders[name]
         result['resultCode'] = 2
         result['resultDescription'] = 'process id %d lost' % pid
-        return result
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')
 
     result['resultCode'] = 0
     result['resultDescription'] = 'up'    
