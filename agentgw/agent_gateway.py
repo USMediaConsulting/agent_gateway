@@ -103,8 +103,9 @@ def start_bidder(name):
 
     if name in bidders :
         result['resultCode'] = 1
-        result['resultDescription'] = 'bidder already started'    
-        return result
+        result['resultDescription'] = 'agent already started'    
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')
     else :
         bidder = {}
 
@@ -122,12 +123,13 @@ def start_bidder(name):
         bidders_config_base_path, '%s.conf.json' % name)    
     try :
         conf_file = open(conf_file_name, 'w')
-        conf_file.write(json.dumps(request.json))    
+        conf_file.write(json.dumps(request.json))
         conf_file.close()
     except :
-        result['resultCode'] = 4
-        result['resultDescription'] = 'unable to create config file'    
-        return result
+        result['resultCode'] = 6
+        result['resultDescription'] = 'unable to create config file'
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')
 
     logger.info('bringing up bidder %s=%s' % (name, bidder))
     # set the args a list (popen expects them that way)
@@ -168,6 +170,8 @@ def start_bidder(name):
     except :
         result['resultCode'] = 3
         result['resultDescription'] = 'error executing agent'
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')
 
     # read the pid, the one that proc returns belongs to the shell
     pid = None
@@ -185,7 +189,8 @@ def start_bidder(name):
         logger.error('unable to find pid, are you printing it?')
         result['resultCode'] = 4
         result['resultDescription'] = 'unable to find pid, are you printing it?'
-        return result     
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')    
     # check if the pid still exists, sometimes a bidder starts and aborts
     # right away.
     if not os.path.exists('/proc/%d' % pid):
@@ -193,7 +198,8 @@ def start_bidder(name):
         logger.error('did the process aborted?')
         result['resultCode'] = 5
         result['resultDescription'] = 'process id %d lost' % pid
-        return result
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')
      
     # save the pid for the new bidder
     bidder['pid']  = pid
@@ -215,6 +221,8 @@ def start_bidder(name):
     except :
         result['resultCode'] = 2
         result['resultDescription'] = 'unable to pickle configuration'
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')
 
     return result
     
