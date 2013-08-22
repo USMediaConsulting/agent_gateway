@@ -279,12 +279,13 @@ def get_status(name):
         retrieves the status of a given agent
     """
     result = {
-            'resultCode'        :   0,
+            'resultCode'        :   1,
             'resultDescription' :   'down'
     }
 
     if not name in bidders:
-        return result
+        raise HTTPResponse(body=json.dumps(result), status=404, 
+                Content_Type='application/json')
 
     pid = bidders[name]['pid']
     if not os.path.exists('/proc/%d' % pid):
@@ -300,7 +301,7 @@ def get_status(name):
         result['resultDescription'] = 'process id %d lost' % pid
         return result
 
-    result['resultCode'] = 1
+    result['resultCode'] = 0
     result['resultDescription'] = 'up'    
     return result
 
