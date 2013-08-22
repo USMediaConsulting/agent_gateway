@@ -240,7 +240,8 @@ def stop_bidder(name):
     if name not in bidders :
         result['resultCode'] = 1
         result['resultDescription'] = 'bidder not running'    
-        return result
+        raise HTTPResponse(body=json.dumps(result), status=404, 
+                Content_Type='application/json')
 
     logger.info('stopping bidder %s=%s' % (name, bidders[name]))
 
@@ -254,7 +255,8 @@ def stop_bidder(name):
     except :
         result['resultCode'] = 2
         result['resultDescription'] = 'unable to kill process %s' % pid    
-        return result
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')
 
     logger.info('agent %s with pid %d stopped' % (name, pid))
     
@@ -264,9 +266,11 @@ def stop_bidder(name):
         os.remove(os.path.join(pickle_path, str(pid)))
     except :
         result = {
-            'resultCode'        :   4,
+            'resultCode'        :   3,
             'resultDescription' :   'unable to delete pickled data'
-        }    
+        }
+        raise HTTPResponse(body=json.dumps(result), status=500, 
+                Content_Type='application/json')    
     return result
 
 @app.get('/v1/agents/<name>/status')
