@@ -227,6 +227,7 @@ def start_bidder(name):
         raise HTTPResponse(body=json.dumps(result), status=500, 
                 Content_Type='application/json')
 
+    result['pid'] = int(pid)
     return result
     
 
